@@ -1,26 +1,18 @@
-const { produtos, gerarId } = require('../bd');
+const produtoService = require('../services/produtoService');
 
 const cadastrarProduto = (req, res) => {
-    const { nome, preco, quantidade } = req.body;
-    
-    const novoProduto = {
-        id: gerarId(),
-        nome,
-        preco,
-        quantidade
-    };
+    const novoProduto = produtoService.cadastrar(req.body);
 
-    produtos.push(novoProduto);
     return res.status(201).json(novoProduto);
 };
 
 const listarProdutos = (req, res) => {
-    return res.json(produtos);
+    return res.json(produtoService.listar());
 };
 
 const buscarProdutoPorId = (req, res) => {
     const id = Number(req.params.id);
-    const produto = produtos.find(p => p.id === id);
+    const produto = produtoService.buscarPorId(id);
 
     if (!produto) {
         return res.status(404).json({ mensagem: "Produto não encontrado!" });
@@ -31,47 +23,34 @@ const buscarProdutoPorId = (req, res) => {
 
 const atualizarProduto = (req, res) => {
     const id = Number(req.params.id);
-    const { nome, preco, quantidade } = req.body;
-
-    const produto = produtos.find(p => p.id === id);
+    const produto = produtoService.atualizar(id, req.body);
 
     if (!produto) {
         return res.status(404).json({ mensagem: "Produto não encontrado!" });
     }
-
-    produto.nome = nome;
-    produto.preco = preco;
-    produto.quantidade = quantidade;
 
     return res.json(produto);
 };
 
 const atualizarParcialProduto = (req, res) => {
     const id = Number(req.params.id);
-    const { nome, preco, quantidade } = req.body;
-
-    const produto = produtos.find(p => p.id === id);
+    const produto = produtoService.atualizarParcial(id, req.body);
 
     if (!produto) {
         return res.status(404).json({ mensagem: "Produto não encontrado!" });
     }
-
-    if (nome !== undefined) produto.nome = nome;
-    if (preco !== undefined) produto.preco = preco;
-    if (quantidade !== undefined) produto.quantidade = quantidade;
 
     return res.json(produto);
 };
 
 const deletarProduto = (req, res) => {
     const id = Number(req.params.id);
-    const index = produtos.findIndex(p => p.id === id);
+    const removido = produtoService.deletar(id);
 
-    if (index === -1) {
+    if (!removido) {
         return res.status(404).json({ mensagem: "Produto não encontrado!" });
     }
 
-    produtos.splice(index, 1);
     return res.json({ mensagem: "Produto excluído com sucesso!" });
 };
 
