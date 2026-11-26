@@ -1,64 +1,41 @@
-const { produtos, gerarId } = require('../bd');
+const produtoRepository = require('../repositories/produtoRepository');
 
 const cadastrar = ({ nome, preco, quantidade }) => {
     const novoProduto = {
-        id: gerarId(),
+        id: produtoRepository.gerarNovoId(),
         nome,
         preco,
         quantidade
     };
 
-    produtos.push(novoProduto);
-    return novoProduto;
+    return produtoRepository.salvar(novoProduto);
 };
 
 const listar = () => {
-    return produtos;
+    return produtoRepository.listarTodos();
 };
 
 const buscarPorId = (id) => {
-    return produtos.find(p => p.id === id) || null;
+    return produtoRepository.buscarPorId(id);
 };
 
 const atualizar = (id, { nome, preco, quantidade }) => {
-    const produto = buscarPorId(id);
-
-    if (!produto) {
-        return null;
-    }
-
-    produto.nome = nome;
-    produto.preco = preco;
-    produto.quantidade = quantidade;
-
-    return produto;
+    return produtoRepository.atualizar(id, { nome, preco, quantidade });
 };
 
 const atualizarParcial = (id, dados) => {
-    const produto = buscarPorId(id);
-
-    if (!produto) {
-        return null;
-    }
-
     const { nome, preco, quantidade } = dados;
+    const campos = {};
 
-    if (nome !== undefined) produto.nome = nome;
-    if (preco !== undefined) produto.preco = preco;
-    if (quantidade !== undefined) produto.quantidade = quantidade;
+    if (nome !== undefined) campos.nome = nome;
+    if (preco !== undefined) campos.preco = preco;
+    if (quantidade !== undefined) campos.quantidade = quantidade;
 
-    return produto;
+    return produtoRepository.atualizar(id, campos);
 };
 
 const deletar = (id) => {
-    const index = produtos.findIndex(p => p.id === id);
-
-    if (index === -1) {
-        return false;
-    }
-
-    produtos.splice(index, 1);
-    return true;
+    return produtoRepository.removerPorId(id);
 };
 
 module.exports = {
